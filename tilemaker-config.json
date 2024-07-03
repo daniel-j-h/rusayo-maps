@@ -1,0 +1,18 @@
+{
+  "layers": {
+    "building": {
+        "minzoom": 15,
+        "maxzoom": 16
+    }
+  },
+  "settings": {
+    "minzoom": 15,
+    "maxzoom": 16,
+    "basezoom": 16,
+    "include_ids": false,
+    "name": "Tilemaker Buildings",
+    "version": "0.1",
+    "description": "Buildings",
+    "compress": "gzip"
+  }
+}

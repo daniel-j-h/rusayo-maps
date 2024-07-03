@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Rusayo Camps</title>
+    <meta name="Description" content="Missing Maps activities to put the Rusayo camps for displaced people on the map">
+    <script src="assets/js/maplibre-gl-v4.3.2.js" integrity="sha384-tadmmhpxUhgmddNivAQUc2SdFDDOC4r7Ic5ULA6gpBezkqTK7abjgq3D/lHO+qfm"></script>
+    <script src="assets/js/pmtiles-v3.0.6.js" integrity="sha384-4sbA4B4Oqxkzs6apu8HaZcGrL3BySmt0tO/LQf6al3hkgq8ijZFxkTkvxxZZ/3PU"></script>
+    <script src="assets/js/protomaps-themes-base-v3.0.1.js" integrity="sha384-eY54XXA+GtB8WF/MtDT0ePKl7xTOQMgPh61vvTSmBe429mB2morww8o7avre+iKz"></script>
+    <style>
+      @font-face {
+        font-family: noto-sans-display;
+        src: url(assets/fonts/noto-sans-display-latin-900-normal.woff2);
+        font-display: block;
+      }
+
+      @font-face {
+        font-family: noto-sans-regular;
+        src: url(assets/fonts/noto-sans-latin-400-normal.woff2);
+        font-display: block;
+      }
+
+      @font-face {
+        font-family: noto-sans-italic;
+        src: url(assets/fonts/noto-sans-latin-400-italic.woff2);
+        font-display: block;
+      }
+
+      @font-face {
+        font-family: noto-sans-bold;
+        src: url(assets/fonts/noto-sans-latin-700-normal.woff2);
+        font-display: block;
+      }
+
+      @font-face {
+        font-family: noto-sans-mono;
+        src: url(assets/fonts/noto-sans-mono-latin-400-normal.woff2);
+        font-display: block;
+      }
+
+      :root {
+        color-scheme: light;
+      }
+
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      body, h1, h2, h3, h4, p {
+        margin: 0;
+      }
+
+      html {
+        text-size-adjust: none;
+        -moz-text-size-adjust: none;
+        -webkit-text-size-adjust: none;
+      }
+
+      body {
+        font: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem)/1.65 noto-sans,sans-serif;
+        text-rendering: optimizeSpeed;
+
+        padding: 5vh clamp(0.825rem, 5vw, 5rem);
+
+        background-color: #ffffff;
+        color: #44403c;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      body strong {
+        font-family: noto-sans-bold;
+        font-weight: normal;
+      }
+
+      body em {
+        font-family: noto-sans-italic;
+        font-style: normal;
+      }
+
+      body code, body pre {
+        font-family: noto-sans-mono, monospace;
+      }
+
+      body h1 {
+        font: clamp(4.5rem, 3.6rem + 3vw, 6rem)/1.2 noto-sans-display;
+        font-style: normal;
+        font-weight: normal;
+        text-wrap: balance;
+        hyphens: manual;
+      }
+
+      body h2, h3, h4 {
+        font: clamp(1.5rem, 1.275rem + 0.75vw, 1.875rem)/1.2 noto-sans-bold;
+        font-style: normal;
+        font-weight: normal;
+        text-wrap: balance;
+        hyphens: manual;
+      }
+
+      body p {
+        text-wrap: pretty;
+        hyphens: auto;
+      }
+
+      body main {
+        width: 100%;
+      }
+
+      body main p {
+        width: min(100%, 70ch);
+      }
+
+      body #map1 {
+        flex-grow: 2;
+        height: min(100%, 75vh);
+        width: 100%;
+        aspect-ratio: 1.25;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      body #map2 {
+        flex-grow: 2;
+        height: min(100%, 75vh);
+        width: 100%;
+        aspect-ratio: 1.25;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      body video {
+        flex-grow: 2;
+        height: min(100%, 75vh);
+        width: 100%;
+        max-width: 100%;
+        aspect-ratio: 1.25;
+        object-fit: cover;
+      }
+
+      body section {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 3.2rem;
+      }
+
+      body aside {
+        flex-grow: 1;
+        width: min(100%, 70ch);
+      }
+
+
+      @media (max-width: 600px) {
+        body section {
+          flex-direction: column;
+        }
+      }
+
+      @media (min-width: 600px) {
+        body section:nth-of-type(odd) {
+          flex-direction: row-reverse;
+        }
+
+        body section:nth-of-type(even) {
+          flex-direction: row;
+        }
+      }
+
+      body footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      body .spacer-h-1 { height: 1.6rem; }
+      body .spacer-h-2 { height: 3.2rem; }
+      body .spacer-h-3 { height: 6.4rem; }
+      body .spacer-h-4 { height: 12.8rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Rusayo Camps</h1>
+      <div class="spacer-h-1"></div>
+      <h3>Putting camps for displaced people on the map for humanitarian aid</h3>
+    </header>
+
+    <div class="spacer-h-4"></div>
+
+    <main>
+
+      <section>
+        <aside>
+          <h3>Located in the Democratic Republic of Congo</h3>
+          <div class="spacer-h-2"></div>
+          <p>The Rusayo camps are located in the North Kivu province near Goma in the eastern parts of the Democratic Republic of Congo.</p>
+          <div class="spacer-h-1"></div>
+          <p>Due to renewed conflicts in 2023 the camps at the outskirts of Goma provide refuge to displaced people.</p>
+        </aside>
+        <div id="map1"></div>
+      </section>
+
+      <div class="spacer-h-4"></div>
+
+      <section>
+        <aside>
+          <h3>The camps provide shelter and housing</h3>
+          <div class="spacer-h-2"></div>
+          <p>As of July 2024 three Rusayo camps are providing shelter and housing to over 100.000 displaced people.</p>
+          <div class="spacer-h-1"></div>
+          <p>Humanitarian aid on the ground provides bare necessities like clean water, food, and assistance.</p>
+        </aside>
+        <div id="map2"></div>
+      </section>
+
+      <div class="spacer-h-4"></div>
+
+      <section>
+        <aside>
+          <h3>The camps expanded rapidly</h3>
+          <div class="spacer-h-2"></div>
+          <p>The three Rusayo camps expanded rapidly starting around January 2023 as observed by the Sentinel-2 satellite mission.</p>
+          <div class="spacer-h-1"></div>
+          <p>Due to the rapid expansion and in order to provide humanitarian aid on the ground it is necessary to put the Rusayo camps on the map.</p>
+        </aside>
+        <video controls autoplay loop muted src="assets/videos/timelapse.mp4"></video>
+      </section>
+
+      <div class="spacer-h-4"></div>
+      <div class="spacer-h-4"></div>
+
+      <section>
+        <h3>The <a href="https://www.missingmaps.org" rel="noopener" target="_blank">Missing Maps</a> project continously maps the Rusayo camps and their infrastructure for humanitarian aid on the ground</h3>
+      </section>
+    </main>
+
+    <div class="spacer-h-4"></div>
+    <div class="spacer-h-4"></div>
+
+    <footer>
+      <p>Satellite data from 2023-2024 © <a href="https://sentinel.esa.int/web/sentinel/copernicus/sentinel-2" rel="noopener" target="_blank">ESA Copernicus Sentinel-2</a></p>
+      <p>Map data from July 2024 © <a href="https://openstreetmap.org" rel="noopener" target="_blank">OpenStreetMap</a></p>
+    </footer>
+
+    <div class="spacer-h-2"></div>
+
+    <script>
+      const isMobile = (window.screen.width * window.devicePixelRatio) < 600;
+
+      const protocol = new pmtiles.Protocol();
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+
+      protocol.add(new pmtiles.PMTiles("basemap.pmtiles"));
+      protocol.add(new pmtiles.PMTiles("usecase.pmtiles"));
+
+      var map1 = new maplibregl.Map({
+        container: "map1",
+        antialiasing: true,
+        hash: false,
+        zoom: isMobile ? 1 : 2,
+        minZoom: 0,
+        maxZoom: 3,
+        center: [29.17213, -1.59771],
+        dragPan: false,
+        dragRotate: false,
+        interactive: false,
+        validateStyle: false,
+        renderWorldCopies: false,
+        attributionControl: false,
+        style: {
+          version: 8,
+          glyphs: "assets/sdf/{fontstack}/{range}.pbf",
+          sources: {
+            "basemap": {
+              type: "vector",
+              url: "pmtiles://basemap.pmtiles",
+              attribution: "© <a href='https://openstreetmap.org'>OpenStreetMap</a>",
+              minzoom: 0,
+              maxzoom: 0,
+            },
+          },
+          layers: [
+            {
+              "id": "background",
+              "type": "background",
+              "paint": {
+                "background-color": "#ffffff",
+              },
+            },
+            {
+              "id": "earth",
+              "type": "fill",
+              "source": "basemap",
+              "source-layer": "earth",
+              "paint": {
+                "fill-color": "#d6d3d1",
+              },
+            },
+            {
+              "id": "water",
+              "type": "fill",
+              "source": "basemap",
+              "source-layer": "water",
+              "paint": {
+                "fill-color": "#ffffff",
+              },
+            },
+            {
+              "id": "boundaries",
+              "type": "line",
+              "source": "basemap",
+              "source-layer": "boundaries",
+              "filter": ["<=", "pmap:min_admin_level", 2],
+              "paint": {
+                "line-width": 1,
+                "line-color": "#ffffff",
+              },
+            },
+          ],
+        },
+      });
+
+      map1.on("load", function() {
+        map1.addLayer({
+          id: "progress1",
+          type: "circle",
+          layout: {},
+          paint: {
+            "circle-color": "#ef4444",
+            "circle-radius": isMobile ? 5 : 7,
+          },
+          source: {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [29.17213, -1.59771],
+              },
+              properties: { },
+            },
+          },
+        });
+
+        setTimeout(function() {
+          document.getElementById("map1").style.opacity = 1;
+        }, 200);
+
+        setTimeout(function() {
+          map1.flyTo({ center: [29.17213, -1.59771], zoom: 3, speed: 0.05, essential: true });
+        }, 1000);
+      });
+
+      var map2 = new maplibregl.Map({
+        container: "map2",
+        antialiasing: true,
+        hash: false,
+        zoom: isMobile ? 14 : 15,
+        minZoom: 11,
+        maxZoom: 19,
+        center: [29.171822, -1.598208],
+        dragPan: false,
+        dragRotate: false,
+        interactive: false,
+        validateStyle: false,
+        renderWorldCopies: false,
+        attributionControl: false,
+        style: {
+          version: 8,
+          glyphs: "assets/sdf/{fontstack}/{range}.pbf",
+          sources: {
+            "basemap": {
+              type: "vector",
+              url: "pmtiles://basemap.pmtiles",
+              attribution: "© <a href='https://openstreetmap.org'>OpenStreetMap</a>",
+              minzoom: 11,
+              maxzoom: 14,
+              bounds: [29.095548027119207, -1.714663655834002, 29.30556921371894, -1.543033668223842],
+            },
+            "usecase": {
+              type: "vector",
+              url: "pmtiles://usecase.pmtiles",
+              attribution: "© <a href='https://openstreetmap.org'>OpenStreetMap</a>",
+              minzoom: 15,
+              maxzoom: 16,
+              bounds: [29.095548027119207, -1.714663655834002, 29.30556921371894, -1.543033668223842],
+            },
+          },
+          layers: protomaps_themes_base.default("basemap", "white"),
+        },
+      });
+
+      map2.on("load", function() {
+        map2.removeLayer("buildings");
+
+        map2.addSource("inverse-bounds", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [180, 90],
+                  [-180, 90],
+                  [-180, -90],
+                  [180, -90],
+                  [180, 90],
+                ],
+                [
+                  [29.095548027119207, -1.543033668223842],
+                  [29.30556921371894, -1.543033668223842],
+                  [29.30556921371894, -1.714663655834002],
+                  [29.095548027119207, -1.714663655834002],
+                  [29.095548027119207, -1.543033668223842],
+                ]
+              ],
+            },
+          },
+        });
+
+        map2.addLayer({
+          id: "inverse-bounds-1",
+          source: "inverse-bounds",
+          type: "fill",
+          layout: {},
+          paint: {
+            "fill-color": "#ffffff",
+            "fill-opacity": 1,
+          },
+        });
+
+        map2.addLayer({
+          id: "buildings",
+          source: "usecase",
+          "source-layer": "building",
+          type: "fill",
+          minzoom: 15,
+          layout: {},
+          paint: {
+            "fill-color": "#d6d3d1",
+            "fill-opacity": 0.5,
+          },
+        });
+
+        const symbols = [
+          { name: "Camp de Rusayo 1", center: [29.16845, -1.60074], minzoom: 13, maxzoom: 17 },
+          { name: "Camp de Rusayo 2", center: [29.17495, -1.60127], minzoom: 13, maxzoom: 17 },
+          { name: "Camp de Rusayo 3", center: [29.17639, -1.59454], minzoom: 13, maxzoom: 17 },
+          { name: "Camp de Rusayo", center: [29.17213, -1.59771], minzoom: 12, maxzoom: 13 },
+        ];
+
+        symbols.forEach(function (symbol, i) {
+          map2.addLayer({
+            id: `symbol-${i}`,
+            type: "symbol",
+            minzoom: symbol.minzoom,
+            maxzoom: symbol.maxzoom,
+            layout: {
+              "text-font": ["Noto Sans Medium"],
+              "text-size": ["interpolate", ["linear"], ["zoom"], 3, 10, 10, 12],
+              "text-letter-spacing": 0.1,
+              "text-transform": "uppercase",
+              "text-field": ["get", "text"],
+            },
+            paint: {
+              "text-color": "#44403c",
+            },
+            source: {
+              type: "geojson",
+              data: {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: symbol.center,
+                },
+                properties: {
+                  text: symbol.name
+                },
+              },
+            },
+          });
+        });
+
+        setTimeout(function() {
+          document.getElementById("map2").style.opacity = 1;
+        }, 200);
+
+        let i = 0;
+
+        setInterval(function() {
+          const symbol = symbols[i];
+
+          map2.flyTo({
+            center: symbol.center,
+            zoom: symbol.maxzoom + 1,
+            speed: 0.2,
+            essential: true,
+          });
+
+          i = (i + 1) % symbols.length;
+        }, 7500);
+      });
+    </script>
+  </body>
+</html>
